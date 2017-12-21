@@ -48,7 +48,7 @@ const factory = (Dialog, Calendar) => {
 
     state = {
       display: 'months',
-      date: this.props.value,
+      date: new Date(),
     };
 
     componentWillMount() {
@@ -83,7 +83,7 @@ const factory = (Dialog, Calendar) => {
     };
 
     updateStateDate = (date) => {
-      if (Object.prototype.toString.call(date) === '[object Date]') {
+      if (Object.prototype.toString.call(date) === '[object Date]' && !isNaN(date.getTime())) {
         this.handleNewDate(date, false);
       }
     };
