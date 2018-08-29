@@ -88,12 +88,16 @@ const factory = (FontIcon) => {
     }
 
     componentDidUpdate() {
-      // resize the textarea, if nessesary
+      // resize the textarea, if necessary
       if (this.props.multiline) this.handleAutoresize();
     }
 
     componentWillUnmount() {
       if (this.props.multiline) window.removeEventListener('resize', this.handleAutoresize);
+    }
+
+    onRef = (ref) => {
+      this.inputNode = ref;
     }
 
     handleChange = (event) => {
@@ -112,13 +116,21 @@ const factory = (FontIcon) => {
 
     handleAutoresize = () => {
       const element = this.inputNode;
-      const rows = this.props.rows;
+      const style = getComputedStyle(element, null);
 
+      const current = Number((String(style.height).match(/^([0-9.]+)(?:px)?$/) || [])[1]);
+      const previous = Number((String(this._lastAutoSize).match(/^([0-9.]+)(?:px)?$/) || [])[1]);
+
+      // skip if user has manually resized the input
+      if (previous && previous !== current) {
+        return;
+      }
+
+      const rows = this.props.rows;
       if (typeof rows === 'number' && !isNaN(rows)) {
         element.style.height = null;
       } else {
         // compute the height difference between inner height and outer height
-        const style = getComputedStyle(element, null);
         const heightOffset = style.boxSizing === 'content-box'
           ? -(parseFloat(style.paddingTop) + parseFloat(style.paddingBottom))
           : parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
@@ -127,6 +139,9 @@ const factory = (FontIcon) => {
         element.style.height = 'auto';
         element.style.height = `${element.scrollHeight + heightOffset}px`;
       }
+
+      // compute and store height
+      this._lastAutoSize = getComputedStyle(element, null).height;
     }
 
     handleKeyPress = (event) => {
@@ -186,7 +201,7 @@ const factory = (FontIcon) => {
         ...others,
         className: classnames(theme.inputElement, { [theme.filled]: valuePresent }),
         onChange: this.handleChange,
-        ref: (node) => { this.inputNode = node; },
+        ref: this.onRef,
         role,
         name,
         defaultValue,

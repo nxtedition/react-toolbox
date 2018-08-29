@@ -39,6 +39,7 @@
   font-size: var(--input-field-font-size);
   outline: none;
   padding: var(--input-field-padding) 0;
+  resize: vertical;
   width: 100%;
 
   &:focus:not([disabled]):not([readonly]) {
